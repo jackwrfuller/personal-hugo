@@ -4,7 +4,8 @@ RUN apk add hugo git
 WORKDIR /app
 COPY hugo/. /app
 
-ARG HUGO_BASEURL="http://hugo.docker.amazee.io"
+ARG HUGO_BASEURL
+ENV HUGO_BASEURL=${HUGO_BASEURL}
 
 RUN hugo  --baseURL="$HUGO_BASEURL"
 
