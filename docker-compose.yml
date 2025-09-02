@@ -8,6 +8,7 @@ services:
         HUGO_BASEURL: ${HUGO_BASEURL}
     labels:
       lagoon.type: nginx
+      lagoon.service.usecomposeports: true
     ports:
       - "1313:1313"
     networks:
