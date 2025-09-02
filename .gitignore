@@ -1,0 +1,3 @@
+hugo/public/*
+!hugo/public/.gitkeep
+.env

@@ -1,0 +1,19 @@
+services:
+  nginx:
+    container_name: hugo
+    build:
+      context: .
+      dockerfile: lagoon/nginx.Dockerfile
+    labels:
+      lagoon.type: nginx
+    ports:
+      - "1313:1313"
+    networks:
+      - amazeeio-network
+      - default
+    environment:
+      LAGOON_LOCALDEV_HTTP_PORT: "1313"
+
+networks:
+  amazeeio-network:
+    external: true
