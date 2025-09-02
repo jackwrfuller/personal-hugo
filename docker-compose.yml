@@ -4,6 +4,8 @@ services:
     build:
       context: .
       dockerfile: lagoon/nginx.Dockerfile
+      args:
+        HUGO_BASEURL: ${HUGO_BASEURL}
     labels:
       lagoon.type: nginx
     ports:

@@ -3,7 +3,11 @@ FROM uselagoon/commons AS builder
 RUN apk add hugo git
 WORKDIR /app
 COPY hugo/. /app
-RUN hugo
+
+ARG HUGO_BASEURL="http://hugo.docker.amazee.io"
+
+RUN hugo  --baseURL="$HUGO_BASEURL"
+
 
 FROM uselagoon/nginx
 
