@@ -47,8 +47,8 @@ style = "github-dark"
   author = "authors"
 
 [params.umami]
-  siteID = "9e68b63f-745f-4d3c-9264-2dbc16d465a9"
-  scriptURL = "https://umami.umami.main.172.19.0.240.nip.io/script.js"
+  siteID = "498eafe9-df46-45a3-a240-6d66428ead82"
+  scriptURL = "https://umami.main-umami.app.lagoon.jwrf.au/script.js"
 
 
 # Social links
