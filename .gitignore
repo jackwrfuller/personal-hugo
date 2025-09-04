@@ -1,3 +1,4 @@
 hugo/public/*
 !hugo/public/.gitkeep
 .env
+.DS_STORE
