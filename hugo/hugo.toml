@@ -1,3 +1,74 @@
 baseURL = 'http://hugo.docker.amazee.io'
-languageCode = 'en-us'
-title = 'My New Hugo Site'
+baseurl = "http://www.example.com"
+title = "jackwrfuller"
+theme = "hugo-coder"
+languagecode = "en"
+defaultcontentlanguage = "en"
+
+
+[pagination]
+pagerSize = 20
+
+[services]
+#[services.disqus]
+#shortname = "yourdiscussshortname"
+
+[markup.highlight]
+style = "github-dark"
+
+[params]
+  author = "Jack W R Fuller"
+  info = "Software Engineer"
+  description = "Jack W R Fuller's personal website"
+  keywords = "blog,developer,personal"
+  avatarurl = "images/kingcnut.jpg"
+  #gravatar = "john.doe@example.com"
+
+  faviconSVG = "/img/favicon.svg"
+  favicon_32 = "/img/favicon-32x32.png"
+  favicon_16 = "/img/favicon-16x16.png"
+
+  footer = false
+  credit = false
+
+  enableTwemoji = true
+
+  colorScheme = "auto"
+  hidecolorschemetoggle = false
+
+  # customCSS = ["css/custom.css"]
+  # customSCSS = ["scss/custom.scss"]
+  # customJS = ["js/custom.js"]
+
+[taxonomies]
+  category = "categories"
+  series = "series"
+  tag = "tags"
+  author = "authors"
+
+[params.umami]
+  siteID = "9e68b63f-745f-4d3c-9264-2dbc16d465a9"
+  scriptURL = "https://umami.umami.main.172.19.0.240.nip.io/script.js"
+
+
+# Social links
+[[params.social]]
+  name = "Github"
+  icon = "fa-brands fa-github fa-2x"
+  weight = 1
+  url = "https://github.com/jackwrfuller/"
+[[params.social]]
+  name = "LinkedIn"
+  icon = "fa-brands fa-linkedin fa-2x"
+  weight = 2
+  url = "https://linkedin.com/jackwrfuller"
+
+# Menu links
+[[menu.main]]
+  name = "Blog"
+  weight = 1
+  url  = "posts/"
+[[menu.main]]
+  name = "About"
+  weight = 2
+  url = "about/"

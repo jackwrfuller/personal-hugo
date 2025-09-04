@@ -7,7 +7,7 @@ COPY hugo/. /app
 ARG HUGO_BASEURL
 ENV HUGO_BASEURL=${HUGO_BASEURL}
 
-RUN hugo  --baseURL="$HUGO_BASEURL"
+RUN hugo --baseURL="$HUGO_BASEURL"
 
 
 FROM uselagoon/nginx
