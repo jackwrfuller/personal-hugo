@@ -1,1 +1,9 @@
 docker-compose-yaml: docker-compose.yml
+
+environments:
+  main:
+    routes:
+      - nginx:
+        - jackwrfuller.au:
+            tls-acme: 'false'
+            insecure: Allow
