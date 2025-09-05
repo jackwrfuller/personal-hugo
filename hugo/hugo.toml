@@ -61,7 +61,7 @@ style = "github-dark"
   name = "LinkedIn"
   icon = "fa-brands fa-linkedin fa-2x"
   weight = 2
-  url = "https://linkedin.com/jackwrfuller"
+  url = "https://linkedin.com/in/jackwrfuller"
 
 # Menu links
 [[menu.main]]
