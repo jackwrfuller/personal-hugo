@@ -1,0 +1,9 @@
+{{ $width := .Get "width" | default "200" }}
+{{ $height := .Get "height" | default "200" }}
+{{ $image := resources.Get "images/portrait.jpg" }}
+{{ $resized := $image }}
+
+<p style="text-align: center;">
+  <img src="{{ $resized.RelPermalink }}" width="{{ $width }}" height="{{ $height }}" alt="{{ .Get "alt" | default "headshot" }}">
+</p>
+

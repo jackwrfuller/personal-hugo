@@ -6,6 +6,8 @@ aliases = ["about-me"]
 author = "Jack W R Fuller"
 +++
 
+{{< portrait width="250" height="250" alt="My Headshot" >}}
+
 Mathematician by training, software engineer by trade.
 
 I love learning new things, solving problems, and figuring out how stuff works.
