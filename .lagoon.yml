@@ -1,5 +1,9 @@
 docker-compose-yaml: docker-compose.yml
 
+routes:
+  autogenerate:
+    oauthProtected: true
+
 environments:
   main:
     routes:
@@ -7,3 +11,4 @@ environments:
         - jackwrfuller.au:
             tls-acme: 'true'
             insecure: Redirect
+            oauthProtected: false
