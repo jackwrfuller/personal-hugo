@@ -11,4 +11,4 @@ environments:
         - jackwrfuller.au:
             tls-acme: 'true'
             insecure: Redirect
-            oauthProtected: false
+            oauthProtected: true
