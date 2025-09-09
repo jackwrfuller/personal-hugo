@@ -48,6 +48,13 @@ In short, the workflow looks something like this:
 
 ## Reading the data
 
+At the time when I was first investigating this project, I was doing a lot of systems programming in C for one of my university courses.
+This was quite fortunate, as anyone with embedded experience knows that most drivers are written in C.
+The Sensirion SHT4x is no exception.
+Sensirion helpfully provided an excellent driver called [raspberry-pi-i2c-sht4x](https://github.com/Sensirion/raspberry-pi-i2c-sht4x) that fitted my use case perfectly.
+With this in hand, I came up with what I felt was the simplest possible design to get sensor readings up to the internet: a binary that takes a single reading from the sensor, constructs a basic JSON payload, and posts it to the provided endpoint.
+This binary could then be run at regular intervals, for example via a cron schedule.
+
 
 ## Storing the data
 
