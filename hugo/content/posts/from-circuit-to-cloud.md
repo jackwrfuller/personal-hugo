@@ -16,6 +16,8 @@ categories = [
 series = ["Lagoon"]
 +++
 
+In this article I explain how I used Lagoon, an open-source application delivery platform, to store and deliver temperature and humidity sensor data. 
+
 ## Introduction
 
 About a year ago now I was completing a computer organisation course at my local university.
@@ -33,4 +35,21 @@ It looks pretty much exactly like this:
 
 {{< portrait width="400" image="/images/sht-to-pi.jpg" alt="SHT4x connected to Raspberry Pi" >}}
 
+In his article, Dries publishes the sensor data to his Drupal website.
+I thought, perhaps I can do the same?
+However, this opened a bigger can of worms since I didn't yet have a website, nor had I figured out where such a website would be hosted.
+This article explains how the entire process I ended up taking.
+
+In short, the workflow looks something like this:
+
+1. Read the sensor data using a hardware driver
+2. Post the data to a microservice hosted in Lagoon that stores it
+3. Poll the microservice for the data from (for example) my personal website
+
 ## Reading the data
+
+
+## Storing the data
+
+
+## Showing the data
