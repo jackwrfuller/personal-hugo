@@ -174,7 +174,14 @@ Further, I wanted to display this information on my personal website, for which 
 Therefore, a database and even a redis cache was totally overkill at this point.
 Instead, I decided I was going to store it directly in memory using a _microservice_.
 
+A service that met my requirements would need satisfy three criteria:
 
+1. Be able to store two floats
+2. Expose an HTTP endpoint to update these floats
+3. Expose an HTTP endpoint to check the value of these floats
+
+A lot of my recent work has involved Go, as it appears to be the de facto standard for cloud native applications.
+I decided that given the tiny scope of my requirements, I could satisfy them with a simple, custom HTTP server.
 
 
 ## Showing the data
