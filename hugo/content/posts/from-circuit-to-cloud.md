@@ -171,17 +171,17 @@ Now that I had a way to post the sensor data to any location on the internet, I 
 In most cases, this is where a database would come in.
 While any database would work given the simplicity of the data, I only cared at this point about seeing the _current_ data.
 Further, I wanted to display this information on my personal website, for which I wanted to use a static site generator.
-Therefore, a database and even a redis cache was totally overkill at this point.
-Instead, I decided I was going to store it directly in memory using a _microservice_.
+Therefore, a database and even a redis cache would be totally overkill.
+Instead, I decided to store it directly in memory using a _microservice_.
 
-A service that met my requirements would need satisfy three criteria:
+Any service that met my requirements would need to satisfy three criteria:
 
 1. Be able to store two floats
 2. Expose an HTTP endpoint to update these floats
 3. Expose an HTTP endpoint to check the value of these floats
 
-A lot of my recent work has involved Go, as it appears to be the de facto standard for cloud native applications.
-I decided that given the tiny scope of my requirements, I could satisfy them with a simple, custom HTTP server.
+Since it appears to be the cloud-native de facto standard, a lot of my recent work has been in Go.
+Thus I decided that given the tiny scope of my requirements, I could satisfy them with a simple, custom HTTP server written in Go.
 
 
 ## Showing the data
