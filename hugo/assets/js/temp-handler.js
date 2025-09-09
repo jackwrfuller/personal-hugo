@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function() {
-    fetch("http://temp-handler.main-temp-handler.app.lagoon.jwrf.au/api/v1/status")
+    fetch("https://temp-handler.main-temp-handler.app.lagoon.jwrf.au/api/v1/status")
         .then(res => res.json())
         .then(data => {
             const tempElem = document.getElementById("temperature");
