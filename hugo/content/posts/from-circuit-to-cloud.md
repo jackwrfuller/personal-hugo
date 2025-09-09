@@ -141,7 +141,40 @@ char* readingToJSON(Reading* reading) {
 };
 ```
 
+Finally, the rest of the C program simply opens a TCP connection with the specified host, writes the HTTP POST request, and then reads the response.
+It is fairly standard stuff as far as C systems programming goes so I will omit it, but if you are interested it is located [here](https://github.com/jackwrfuller/sht4x-c/blob/main/src/main.c).
+I used a fairly basic makefile to link and compile the program, resulting in a binary that I could via
+
+```bash
+./sensor example.com 80 /api/v1/update
+```
+
+I wanted to take regular readings from the sensor. 
+Since I aleady had a linux binary, cron was the natural way to achieve this.
+Providing an update each minute seemed reasonable, so I simply edited the cron schedule with
+
+```bash
+crontab -e
+```
+
+and appended
+
+```bash
+* * * * *    /path/to/binary sensor-reading-service.example.com 80 /api/v1/update
+```
+
+If you would like to see the whole program, you can view the repository [here](https://github.com/jackwrfuller/sht4x-c).
+
 ## Storing the data
+
+Now that I had a way to post the sensor data to any location on the internet, I needed somewhere to send it!
+In most cases, this is where a database would come in.
+While any database would work given the simplicity of the data, I only cared at this point about seeing the _current_ data.
+Further, I wanted to display this information on my personal website, for which I wanted to use a static site generator.
+Therefore, a database and even a redis cache was totally overkill at this point.
+Instead, I decided I was going to store it directly in memory using a _microservice_.
+
+
 
 
 ## Showing the data
