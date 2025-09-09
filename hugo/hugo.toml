@@ -28,8 +28,9 @@ style = "github-dark"
   favicon_32 = "/img/favicon-32x32.png"
   favicon_16 = "/img/favicon-16x16.png"
 
-  footer = false
+  footer = true
   credit = false
+
 
   enableTwemoji = true
 
@@ -38,7 +39,7 @@ style = "github-dark"
 
   # customCSS = ["css/custom.css"]
   # customSCSS = ["scss/custom.scss"]
-  # customJS = ["js/custom.js"]
+  customJS = ["js/temp-handler.js"]
 
 [taxonomies]
   category = "categories"
