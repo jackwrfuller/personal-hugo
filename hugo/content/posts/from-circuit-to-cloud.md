@@ -183,5 +183,8 @@ Any service that met my requirements would need to satisfy three criteria:
 Since it appears to be the cloud-native de facto standard, a lot of my recent work has been in Go.
 Thus I decided that given the tiny scope of my requirements, I could satisfy them with a simple, custom HTTP server written in Go.
 
+Naturally I could have asked ChatGPT to do it for me and most likely have a working solution in less than 5 seconds, but I wanted to learn.
+So instead I sought out a decent article.
+To be honest, I couldn't find any exceptional ones (i.e ones that covered advanced topics like thread pools) but I did find this basic one from [Bartlomiej Mika](https://bartlomiejmika.com/posts/2021/how-to-write-a-webserver-in-golang-using-only-the-std-net-http-part-1/) which got me started.
 
 ## Showing the data
