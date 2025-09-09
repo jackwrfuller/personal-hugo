@@ -1,6 +1,7 @@
-{{ $width := .Get "width" | default "200" }}
-{{ $height := .Get "height" | default "200" }}
-{{ $image := resources.Get "images/portrait.jpg" }}
+{{ $width := .Get "width" | default "" }}
+{{ $height := .Get "height" | default "" }}
+{{ $resource := .Get "image" | default "images/portrait.jpg"}}
+{{ $image := resources.Get $resource }}
 {{ $resized := $image }}
 
 <p style="text-align: center;">
