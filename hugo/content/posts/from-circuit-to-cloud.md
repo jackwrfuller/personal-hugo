@@ -103,6 +103,7 @@ void takeReading(Reading* reading) {
 ```
 
 On reflection, the sleeps are probably not necessary, but the example program used them and it seemed to work, so I didn't think too hard about it at the time.
+
 Next, I had to marshal this data into JSON format.
 Considering the simplicity, I should have just created the JSON manually via a `Sprintf()` call.
 Younger me, however, decided that a JSON library was called for!
@@ -123,7 +124,6 @@ char* readingToJSON(Reading* reading) {
     char* json_string;
     cJSON* temp;
     cJSON* humidity;
-    cJSON* serial_number;
 
     cJSON* reading_json = cJSON_CreateObject();
     
