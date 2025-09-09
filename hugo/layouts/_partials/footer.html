@@ -26,6 +26,7 @@
   </section>
 </footer>
 
-<script src="{{ "js/temp-handler.js" | relURL }}"></script>
+{{ $sensorJS := resources.Get "js/temp-handler.js" | minify | fingerprint }}
+<script src="{{ $sensorJS.RelPermalink }}"></script>
 {{ end }}
 
