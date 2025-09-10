@@ -2,3 +2,5 @@ hugo/public/*
 !hugo/public/.gitkeep
 .env
 .DS_STORE
+hugo/.hugo_build.lock
+hugo/resources/*

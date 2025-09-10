@@ -1,0 +1,8 @@
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: lagoon/dev.Dockerfile
+    volumes:
+      - ./hugo:/app
+
