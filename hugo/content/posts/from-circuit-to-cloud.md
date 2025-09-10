@@ -187,4 +187,203 @@ Naturally I could have asked ChatGPT to do it for me and most likely have a work
 So instead I sought out a decent article.
 To be honest, I couldn't find any exceptional ones (i.e ones that covered advanced topics like thread pools) but I did find this basic one from [Bartlomiej Mika](https://bartlomiejmika.com/posts/2021/how-to-write-a-webserver-in-golang-using-only-the-std-net-http-part-1/) which got me started.
 
-## Showing the data
+Following the article closely, I created a `main.go` with
+
+```go 
+func main() {
+	c := controllers.NewBaseHandler()
+
+	router := http.NewServeMux()
+	router.HandleFunc("/", c.HandleRequests)
+
+	s := &http.Server{
+		Addr: ":3000",
+		Handler: router,
+	}
+
+	fmt.Println("Starting server...")
+	if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		panic(err)
+	}
+}
+```
+
+Next, I defined my sensor data structure with a mutex lock to prevent concurrency issues:
+
+```go 
+type SensorData struct {
+	Temp float64 `json:"temp"`
+	Humidity float64 `json:"humidity"`
+}
+
+var (
+	data SensorData
+	lock sync.Mutex
+)
+```
+
+Then, I defined the API endpoints I wanted to expose:
+
+```go 
+type BaseHandler struct {
+
+}
+
+func NewBaseHandler() (*BaseHandler) {
+	return &BaseHandler{}
+}
+
+func (h *BaseHandler) HandleRequests(w http.ResponseWriter, req *http.Request) {
+	if req.URL.Path == "/api/v1/status" && req.Method == http.MethodGet {
+		h.getStatus(w, req)
+		return
+	}
+
+	if req.URL.Path == "/api/v1/update" && req.Method == http.MethodPost {
+		h.update(w, req)
+		return
+	}
+
+	http.NotFound(w, req)
+	return
+}
+```
+
+The BaseHandler fluff is leftover from the article which did use it, but I decided to keep it anyway (yes, I'm aware that violates YAGNI - sue me).
+The `getStatus` and `update` methods are not complex either.
+
+```go 
+func (h *BaseHandler) update(w http.ResponseWriter, r *http.Request) {
+	var newData SensorData
+
+	if err := json.NewDecoder(r.Body).Decode(&newData); err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	lock.Lock()
+	data = newData
+	lock.Unlock()
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *BaseHandler) getStatus(w http.ResponseWriter, r *http.Request) {
+	lock.Lock()
+	defer lock.Unlock()
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(data)
+}
+```
+
+And this is all you need. Kind of - there is one more tweak needed, but it'll discuss it soon.
+Now that we have a service to store the sensor, how and where is it going to be deployed?
+This is where _Lagoon_ comes in.
+
+## Hosting the data
+
+[Lagoon](https://lagoon.sh/) is an open-source application delivery platform built by [Amazee](https://www.amazee.io/). 
+Essentially, it is a layer on top of kubernetes that allows you to deploy any containerised application without having to deal with kubernetes-related concerns, like creating a Helm chart.
+You can think of it as your own personal Netlify or Vercel, except you can deploy pretty much anything that you can fit into a `docker-compose.yml` file. 
+To deploy an existing compose setup to Lagoon, you have to have a `.lagoon.yml` file and make some minor tweaks to your compose file - this is refered to as _lagoonisation_.
+
+This means you have to do two things:
+
+1. Set up a machine with a cluster running Lagoon
+2. Lagoonise the applications you want to host in Lagoon
+
+These are substantial topics in their own right, and I intend to publish some further articles that explore them in depth.
+An intrepid reader could find out this information for themselves on the [Lagoon documentation website](https://docs.lagoon.sh/).
+For now however, lets assume we have a Lagoon instance available and have lagoonised the _temp-handler_ (as I called it).
+You can see how I did that [here](https://github.com/jackwrfuller/temp-handler/).
+
+All you have to do now is add a new project inside your organisation in the Lagoon UI dashboard.
+Amazee has some helpful documentation on how to do this located [here](https://docs.lagoon.sh/interacting/organizations/).
+Once it has deployed, a route is created automatically and the dashboard looks something like this:
+
+{{<portrait width="500" image="/images/lagoon-ui-env.png">}}
+
+## Using the data
+
+In my case, I simply wanted my personal website to display the current temperature and humidity.
+This website is built with the popular static site generator _Hugo_, and in particular I am using the [Hugo Coder](https://github.com/luizdepra/hugo-coder) theme.
+
+I first wrote a small javascript snippet to fetch the data:
+
+```javascript 
+document.addEventListener("DOMContentLoaded", function() {
+    fetch("sensor.example.org/api/v1/status")
+        .then(res => res.json())
+        .then(data => {
+            const tempElem = document.getElementById("temperature");
+            const humElem = document.getElementById("humidity");
+
+            if (tempElem) tempElem.textContent = `Temperature: ${data.temp.toFixed(2)} °C`;
+            if (humElem) humElem.textContent = `Humidity: ${data.humidity.toFixed(2)} %`;
+        })
+        .catch(err => console.error("Failed to fetch sensor data", err));
+});
+```
+
+In the spirit of keeping things simple, I decided to display the information in the website footer.
+In Hugo, you can override your theme's HTML templates by having one with the same name.
+In my case, I copied my themes `footer.html` to `layouts/_partials/footer.html` and appended the following:
+
+```html 
+{{ if .Site.Params.footer }}
+<footer class="footer">
+  <section class="container">
+    
+    ...
+    
+    <div class="sensor-values">
+      <span id="temperature">Temperature: -- °C</span> ·
+      <span id="humidity">Humidity: -- %</span>
+    </div>
+  </section>
+</footer>
+
+{{ $sensorJS := resources.Get "js/temp-handler.js" | minify | fingerprint }}
+<script src="{{ $sensorJS.RelPermalink }}"></script>
+{{ end }}
+```
+
+At this point, I thought I was done.
+Wrong!
+You see, there is a thing called Cross-Origin Resource Sharing (CORS), and because my custom Go HTTP server was not setting the relevant CORS headers, my browser was rejecting the attempt to fetch and run the javascript.
+Fortunately, only a minor modification was required fix things up.
+
+In `main.go` of `temp-handler`, I needed to add some middleware to inject the right headers (yes, I'm aware this is not secure):
+
+```go
+func corsMiddleware(next http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        w.Header().Set("Access-Control-Allow-Origin", "*") 
+        w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+        if r.Method == "OPTIONS" {
+            w.WriteHeader(http.StatusOK)
+            return
+        }
+        next.ServeHTTP(w, r)
+    })
+}
+```
+
+Then the HTTP server needed to use this function as the handler, i.e:
+
+```go 
+	s := &http.Server{
+		Addr: ":3000",
+		Handler: corsMiddleware(router),
+	}
+```
+
+And that was all! You can see the results at the bottom of this page.
+
+## Conclusion
+
+Once you have it set up and understand how to lagoonise applications, Lagoon is a _phenomenal_ tool.
+While it has traditionally been used to deploy applications that are hard to make cloud-native (such as Drupal), Lagoon essentially lets you build your own hosting platform.
+In a rough sense, it is even somewhat emulating the AWS Lambda functionality - and for a self-hosting aficionado like myself, that's a dream come true.
