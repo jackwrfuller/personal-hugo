@@ -8,7 +8,9 @@ tags = [
     "embedded",
     "linux",
     "raspberry pi",
-    "adafruit"
+    "adafruit",
+    "go",
+    "c"
 ]
 categories = [
     "lagoon",
@@ -16,46 +18,45 @@ categories = [
 series = ["Lagoon"]
 +++
 
-In this article I explain how I used Lagoon, an open-source application delivery platform, to store and deliver temperature and humidity sensor data. 
+In this article, I discuss how I used an open-source application delivery platform called Lagoon to store and deliver IoT sensor data. 
 
 ## Introduction
 
-About a year ago now I was completing a computer organisation course at my local university.
-This got me obsessed for a short while with embedded devices and the software associated with it.
-Orthogonal to my usual engineering work, it was [this article](https://dri.es/building-my-own-temperature-and-humidity-monitor) by the creator of Drupal, Dries Buytaert, that introduced me to my first IoT project.
+About a year ago, I was completing a computer organisation course at my local university.
+For a short while this had me hyperfixated on embedded devices and the software associated with it.
+Despite being orthogonal to my usual engineering work, it was [this article](https://dri.es/building-my-own-temperature-and-humidity-monitor) by Dries Buytaert (the creator of Drupal) that introduced me to what would be my first IoT project.
 
 In short, Dries built a simple temperature monitoring system based around the [Adafruit Sensirion SHT4x](https://www.adafruit.com/product/5776) sensor.
-Dries' solution makes use of an ESP32 microcontroller to read from the sensor, however at that point I already owned everyone's first single-board computer, the Raspberry Pi (model 4B, to be precise).
+Dries' solution made use of an ESP32 microcontroller to read from the sensor and send it via WiFi to his Drupal website, which had an API endpoint exposed for the purpose.
+At that point in time, I already owned everyone's first single-board computer, the Raspberry Pi (model 4B, to be precise).
 Rather than purchase an additional component, I figured I could use that instead.
 
-The sensor itself spoke I2C, and Adafruit exposes this via a Qwiic connector.
-The Raspberry Pi 4B does not comes support Qwiic out of the box, but it does provide a 40-pin GPIO header.
-Using this [Qwiic HAT](https://www.adafruit.com/product/4688) ("Hardware Attached on Top"), we can connect the sensor to the Pi via a [JST 4-pin cable](https://www.adafruit.com/product/4399).
+The sensor itself spoke I2C, a common serial communication protocol, and Adafruit exposed this via a [Qwiic connector](https://learn.sparkfun.com/tutorials/i2c/qwiic-connect-system).
+While the Raspberry Pi 4B does not support Qwiic out of the box, but it does provide a flexible 40-pin GPIO header.
+Using a [Qwiic HAT](https://www.adafruit.com/product/4688) ("Hardware Attached on Top"), we can then connect the sensor to the Pi via a [JST 4-pin cable](https://www.adafruit.com/product/4399).
 It looks pretty much exactly like this:
 
 {{< portrait width="400" image="/images/sht-to-pi.jpg" alt="SHT4x connected to Raspberry Pi" >}}
 
-In his article, Dries publishes the sensor data to his Drupal website.
-I thought, perhaps I can do the same?
-However, this opened a bigger can of worms since I didn't yet have a website, nor had I figured out where such a website would be hosted.
-This article explains how the entire process I ended up taking.
+In his article, Dries publishes the sensor data to his Drupal website, so I was inspired to do the same.
+This opened a Pandora'a Box, as I didn't yet have a website, nor had I figured out where such a website would be hosted.
+This article explains the solution I ended up taking.
 
-In short, the workflow looks something like this:
+In short, it looked something like this:
 
-1. Read the sensor data using a hardware driver
-2. Post the data to a microservice hosted in Lagoon that stores it
-3. Poll the microservice for the data from (for example) my personal website
+1. A reading is taken from the sensor, via a small binary making use of available drivers.
+2. Then, the reading is POSTed to a small HTTP server hosted in Lagoon that stores the data in memory
+3. Finally, the server can be polled via GET requests to obtain the latest data, for example by this website.
 
 ## Reading the data
 
-At the time when I was first investigating this project, I was doing a lot of systems programming in C for one of my university courses.
-This was quite fortunate, as anyone with embedded experience knows that most drivers are written in C.
-The Sensirion SHT4x is no exception.
-Sensirion helpfully provided an excellent driver called [raspberry-pi-i2c-sht4x](https://github.com/Sensirion/raspberry-pi-i2c-sht4x) that fitted my use case perfectly.
-With this in hand, I came up with what I felt was the simplest possible design to get sensor readings up to the internet: a binary that takes a single reading from the sensor, constructs a basic JSON payload, and posts it to the provided endpoint.
+When I was first investigating this project, I was doing a lot of systems programming in C for one of my university courses.
+This was fortunate, as anyone with embedded experience knows that most drivers are written in C, and the Sensirion SHT4x is no exception.
+Sensirion maintains an excellent driver called [raspberry-pi-i2c-sht4x](https://github.com/Sensirion/raspberry-pi-i2c-sht4x) that fitted my use case perfectly.
+With this in hand, I came up with what I felt was the simplest possible design to get sensor readings up to the internet: a binary that takes a single reading from the sensor, constructs a basic JSON payload, and posts it to a specificied endpoint.
 This binary could then be run at regular intervals, for example via a cron schedule.
 
-I first defined a basic interface that covered my needs:
+To get started, I first defined a basic interface that covered my needs:
 
 ```c title="reading.h"
 #include <inttypes.h>
@@ -71,7 +72,7 @@ void printReading(Reading *);
 char* readingToJSON(Reading *);
 ```
 
-Then, following the Sensirion's example program fairly closely, I created the function to read from the sensor:
+Then, following Sensirion's example program closely, I created a function to read from the sensor:
 
 ```c
 void takeReading(Reading* reading) {
@@ -105,21 +106,14 @@ void takeReading(Reading* reading) {
 On reflection, the sleeps are probably not necessary, but the example program used them and it seemed to work, so I didn't think too hard about it at the time.
 
 Next, I had to marshal this data into JSON format.
-Considering the simplicity, I should have just created the JSON manually via a `Sprintf()` call.
-Younger me, however, decided that a JSON library was called for!
-Unlike modern languages, C does not have a defacto module/package system.
-I found this "ultralightweight JSON parser in ANSI C" called [cJSON](https://github.com/DaveGamble/cJSON).
-The cool thing about this library is that it is contained entirely within one C and one header file, meaning that linking it in my makefile was dead simple.
+Considering the simplicity, I should have just constructed the JSON manually - e.g via a `Sprintf()` call.
+Younger me however, decided that a JSON library was called for!
+Unlike modern languages, C does not have a defacto module or packaging system, but I did find this "ultralightweight JSON parser in ANSI C" called [cJSON](https://github.com/DaveGamble/cJSON).
+The cool thing about this library is that it is contained entirely within one C and one header file, meaning that linking and compiling it in my makefile was dead simple.
 
-My overengineered marshalling function used it as follows:
+An overengineered marshalling function followed:
 
 ```c 
-
-/*
- * Construct a JSON string representation of a Reading struct.
- *
- * Return char* must be deallocated by function caller.
- */
 char* readingToJSON(Reading* reading) {
     char* json_string;
     cJSON* temp;
@@ -141,15 +135,16 @@ char* readingToJSON(Reading* reading) {
 };
 ```
 
-Finally, the rest of the C program simply opens a TCP connection with the specified host, writes the HTTP POST request, and then reads the response.
-It is fairly standard stuff as far as C systems programming goes so I will omit it, but if you are interested it is located [here](https://github.com/jackwrfuller/sht4x-c/blob/main/src/main.c).
-I used a fairly basic makefile to link and compile the program, resulting in a binary that I could via
+The rest of the C program simply opens a TCP connection with the specified host, writes the HTTP POST request, and then reads the response.
+Fairly standard stuff as far as C systems programming goes, so I will omit it.
+If you are interested, you can find it [here](https://github.com/jackwrfuller/sht4x-c/blob/main/src/main.c).
+I used a fairly basic makefile to link and compile the program, resulting in a binary runnable like
 
 ```bash
 ./sensor example.com 80 /api/v1/update
 ```
 
-I wanted to take regular readings from the sensor. 
+Of course, I wanted to take regular readings from the sensor. 
 Since I aleady had a linux binary, cron was the natural way to achieve this.
 Providing an update each minute seemed reasonable, so I simply edited the cron schedule with
 
@@ -163,14 +158,14 @@ and appended
 * * * * *    /path/to/binary sensor-reading-service.example.com 80 /api/v1/update
 ```
 
-If you would like to see the whole program, you can view the repository [here](https://github.com/jackwrfuller/sht4x-c).
+You can find the whole program [here](https://github.com/jackwrfuller/sht4x-c).
 
 ## Storing the data
 
 Now that I had a way to post the sensor data to any location on the internet, I needed somewhere to send it!
 In most cases, this is where a database would come in.
 While any database would work given the simplicity of the data, I only cared at this point about seeing the _current_ data.
-Further, I wanted to display this information on my personal website, for which I wanted to use a static site generator.
+Further, I wanted to display this information on my personal website, for which I knew I wanted to use a static site generator.
 Therefore, a database and even a redis cache would be totally overkill.
 Instead, I decided to store it directly in memory using a _microservice_.
 
@@ -180,12 +175,11 @@ Any service that met my requirements would need to satisfy three criteria:
 2. Expose an HTTP endpoint to update these floats
 3. Expose an HTTP endpoint to check the value of these floats
 
-Since it appears to be the cloud-native de facto standard, a lot of my recent work has been in Go.
-Thus I decided that given the tiny scope of my requirements, I could satisfy them with a simple, custom HTTP server written in Go.
+A lot of my recent work has been in Go, so I decided that given the tiny scope of my requirements, I could satisfy them with a simple custom HTTP server written in Go.
 
-Naturally I could have asked ChatGPT to do it for me and most likely have a working solution in less than 5 seconds, but I wanted to learn.
-So instead I sought out a decent article.
-To be honest, I couldn't find any exceptional ones (i.e ones that covered advanced topics like thread pools) but I did find this basic one from [Bartlomiej Mika](https://bartlomiejmika.com/posts/2021/how-to-write-a-webserver-in-golang-using-only-the-std-net-http-part-1/) which got me started.
+Naturally I could have asked ChatGPT to do it for me and most likely would have had a working solution in less than 5 seconds - but I wanted to learn.
+Instead, I sought out a decent article.
+Now to be honest, I couldn't really find any exceptional ones (i.e ones that covered advanced topics like thread pools) but I did find this basic one from [Bartlomiej Mika](https://bartlomiejmika.com/posts/2021/how-to-write-a-webserver-in-golang-using-only-the-std-net-http-part-1/) that could get me started.
 
 Following the article closely, I created a `main.go` with
 
@@ -208,7 +202,7 @@ func main() {
 }
 ```
 
-Next, I defined my sensor data structure with a mutex lock to prevent concurrency issues:
+Then, I defined my sensor data structure with a mutex lock to prevent concurrency issues:
 
 ```go 
 type SensorData struct {
@@ -222,7 +216,7 @@ var (
 )
 ```
 
-Then, I defined the API endpoints I wanted to expose:
+Next, I defined the API endpoints I wanted to expose:
 
 ```go 
 type BaseHandler struct {
@@ -250,7 +244,8 @@ func (h *BaseHandler) HandleRequests(w http.ResponseWriter, req *http.Request) {
 ```
 
 The BaseHandler fluff is leftover from the article which did use it, but I decided to keep it anyway (yes, I'm aware that violates YAGNI - sue me).
-The `getStatus` and `update` methods are not complex either.
+
+The `getStatus` and `update` methods were not complex either:
 
 ```go 
 func (h *BaseHandler) update(w http.ResponseWriter, r *http.Request) {
@@ -277,39 +272,42 @@ func (h *BaseHandler) getStatus(w http.ResponseWriter, r *http.Request) {
 }
 ```
 
-And this is all you need. Kind of - there is one more tweak needed, but it'll discuss it soon.
-Now that we have a service to store the sensor, how and where is it going to be deployed?
+And this is all you need (Kind of - there is one more tweak needed, but I'll discuss it soon).
+Now that we have a service to store the data, how and where is it going to be deployed?
 This is where _Lagoon_ comes in.
 
 ## Hosting the data
 
 [Lagoon](https://lagoon.sh/) is an open-source application delivery platform built by [Amazee](https://www.amazee.io/). 
-Essentially, it is a layer on top of kubernetes that allows you to deploy any containerised application without having to deal with kubernetes-related concerns, like creating a Helm chart.
+Essentially, it is a layer on top of kubernetes that allows you to deploy any containerised application without having to deal with kubernetes-related concerns, such as Helm charts.
 You can think of it as your own personal Netlify or Vercel, except you can deploy pretty much anything that you can fit into a `docker-compose.yml` file. 
-To deploy an existing compose setup to Lagoon, you have to have a `.lagoon.yml` file and make some minor tweaks to your compose file - this is refered to as _lagoonisation_.
 
-This means you have to do two things:
+To deploy an existing compose setup to Lagoon, you have to create a `.lagoon.yml` file and then make some minor tweaks to your compose file - this process is refered to as _lagoonisation_.
 
-1. Set up a machine with a cluster running Lagoon
-2. Lagoonise the applications you want to host in Lagoon
+This means I had to do two things:
 
-These are substantial topics in their own right, and I intend to publish some further articles that explore them in depth.
-An intrepid reader could find out this information for themselves on the [Lagoon documentation website](https://docs.lagoon.sh/).
-For now however, lets assume we have a Lagoon instance available and have lagoonised the _temp-handler_ (as I called it).
+1. First, set up Lagoon on a cluster running on a machine I own.
+2. Then, lagoonise all the applications I wanted to host.
+
+Now, these are substantial topics in their own right, so I intend to publish some further articles that explore them in depth.
+An intrepid reader can find this information for themselves in the [Lagoon documentation](https://docs.lagoon.sh/), which is fairly extensive.
+For now however, lets assume we have a Lagoon instance available and have lagoonised the _temp-handler_ microservice, as I called it.
 You can see how I did that [here](https://github.com/jackwrfuller/temp-handler/).
 
 All you have to do now is add a new project inside your organisation in the Lagoon UI dashboard.
-Amazee has some helpful documentation on how to do this located [here](https://docs.lagoon.sh/interacting/organizations/).
-Once it has deployed, a route is created automatically and the dashboard looks something like this:
+There is also helpful documentation on how to do this [here](https://docs.lagoon.sh/interacting/organizations/).
+Once it has been deployed, a route is created automatically for you, and the dashboard looks something like this:
 
 {{<portrait width="500" image="/images/lagoon-ui-env.png">}}
+
+The microservice is now up and running!
 
 ## Using the data
 
 In my case, I simply wanted my personal website to display the current temperature and humidity.
 This website is built with the popular static site generator _Hugo_, and in particular I am using the [Hugo Coder](https://github.com/luizdepra/hugo-coder) theme.
 
-I first wrote a small javascript snippet to fetch the data:
+To accomplish what I intended, I first wrote a small javascript snippet to fetch the data:
 
 ```javascript 
 document.addEventListener("DOMContentLoaded", function() {
@@ -326,7 +324,7 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 ```
 
-In the spirit of keeping things simple, I decided to display the information in the website footer.
+In the spirit of keeping things simple, I decided to display the information just in the website footer.
 In Hugo, you can override your theme's HTML templates by having one with the same name.
 In my case, I copied my themes `footer.html` to `layouts/_partials/footer.html` and appended the following:
 
@@ -350,7 +348,9 @@ In my case, I copied my themes `footer.html` to `layouts/_partials/footer.html` 
 ```
 
 At this point, I thought I was done.
+
 Wrong!
+
 You see, there is a thing called Cross-Origin Resource Sharing (CORS), and because my custom Go HTTP server was not setting the relevant CORS headers, my browser was rejecting the attempt to fetch and run the javascript.
 Fortunately, only a minor modification was required fix things up.
 
@@ -386,4 +386,4 @@ And that was all! You can see the results at the bottom of this page.
 
 Once you have it set up and understand how to lagoonise applications, Lagoon is a _phenomenal_ tool.
 While it has traditionally been used to deploy applications that are hard to make cloud-native (such as Drupal), Lagoon essentially lets you build your own hosting platform.
-In a rough sense, it is even somewhat emulating the AWS Lambda functionality - and for a self-hosting aficionado like myself, that's a dream come true.
+In this case, it is even in a rough sense somewhat emulating the AWS Lambda functionality - and for a self-hosting aficionado like myself, that's a dream come true.
