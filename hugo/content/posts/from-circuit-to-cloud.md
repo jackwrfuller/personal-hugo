@@ -32,7 +32,7 @@ At that point in time, I already owned everyone's first single-board computer, t
 Rather than purchase an additional component, I figured I could use that instead.
 
 The sensor itself spoke I2C, a common serial communication protocol, and Adafruit exposed this via a [Qwiic connector](https://learn.sparkfun.com/tutorials/i2c/qwiic-connect-system).
-While the Raspberry Pi 4B does not support Qwiic out of the box, but it does provide a flexible 40-pin GPIO header.
+While the Raspberry Pi 4B does not support Qwiic out of the box, it does provide a flexible 40-pin GPIO header.
 Using a [Qwiic HAT](https://www.adafruit.com/product/4688) ("Hardware Attached on Top"), we can then connect the sensor to the Pi via a [JST 4-pin cable](https://www.adafruit.com/product/4399).
 It looks pretty much exactly like this:
 
