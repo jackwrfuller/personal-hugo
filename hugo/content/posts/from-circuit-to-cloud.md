@@ -2,7 +2,7 @@
 authors = ["Jack W R Fuller"]
 title = "From Circuits to the Cloud: Hosting IoT Data in Lagoon"
 date = "2025-09-09"
-description = "A journey through every software layer"
+description = "A journey through the software layers"
 tags = [
     "lagoon",
     "embedded",
