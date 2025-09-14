@@ -8,9 +8,6 @@ defaultcontentlanguage = "en"
 [pagination]
 pagerSize = 20
 
-[services]
-[services.disqus]
-shortname = "jackwrfuller"
 
 [markup.highlight]
 style = "github-dark"
@@ -22,6 +19,7 @@ style = "github-dark"
   keywords = "blog,developer,personal"
   avatarurl = "images/kingcnut.jpg"
   #gravatar = "john.doe@example.com"
+  commentoURL = "https://cdn.commento.io"
 
   faviconSVG = "/images/kingcnut-square.ico"
 
