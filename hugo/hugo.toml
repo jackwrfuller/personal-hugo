@@ -9,8 +9,8 @@ defaultcontentlanguage = "en"
 pagerSize = 20
 
 [services]
-#[services.disqus]
-#shortname = "yourdiscussshortname"
+[services.disqus]
+shortname = "jackwrfuller"
 
 [markup.highlight]
 style = "github-dark"
