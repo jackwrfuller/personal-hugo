@@ -1,5 +1,4 @@
 baseURL = 'http://hugo.docker.amazee.io'
-baseurl = "http://www.example.com"
 title = "jackwrfuller"
 theme = "hugo-coder"
 languagecode = "en"
@@ -24,9 +23,7 @@ style = "github-dark"
   avatarurl = "images/kingcnut.jpg"
   #gravatar = "john.doe@example.com"
 
-  faviconSVG = "/img/favicon.svg"
-  favicon_32 = "/img/favicon-32x32.png"
-  favicon_16 = "/img/favicon-16x16.png"
+  faviconSVG = "/images/kingcnut-square.ico"
 
   footer = true
   credit = false
