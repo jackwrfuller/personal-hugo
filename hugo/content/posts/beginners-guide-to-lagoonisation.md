@@ -56,7 +56,7 @@ With this approach, we can use the images Lagoon provides, which improves our La
 Since I only needed to serve static files, I went with an Nginx webserver.
 Here was the dockerfile I used:
 
-```
+```dockerfile
 FROM uselagoon/commons AS builder
 
 RUN apk add hugo git
@@ -103,7 +103,7 @@ Then we run `hugo`, which builds all the static HTML files and puts them into `/
 A second image is used for this, `uselagoon/nginx`.
 We copy the generated files into this image along with our nginx configuration, for which I used a very basic `lagoon/static-files.conf`:
 
-```
+```nginx
 server {
     listen 1313 default_server;
 
@@ -170,12 +170,65 @@ To recap, for a static website the lagoonisation strategy is:
 - use the custom image in your compose file, remembering to use `lagoon.service.usecomposeports: true` if you want to define your ports there. 
 - configure the `.lagoon.yml` as you please.
 
+# Example 2: A Golang Microservice (temp-handler)
 
-# Example 2: A NodeJS app (Umami Analytics)
+Though it has been described as swatting flies with a sledgehammer, I have actually found Lagoon to be quite convenient for deploying Go microservices.
+In my [previous article](https://jackwrfuller.au/posts/from-circuit-to-cloud/) I introduced _temp-handler_, a basic HTTP server that essentially stores two numbers. 
+The strategy for lagoonising in this case is more or less the same, albeit more simple.
+We will still use a dockerfile, but since the server is a single binary we will not need a multistage build.
+
+In fact, all that is contained in the `lagoon/` folder is the `go.Dockerfile`:
+
+```dockerfile 
+FROM uselagoon/commons
+
+RUN apk add go
+WORKDIR /app
+COPY . /app
+RUN go build -o temp-handler /app/main.go
+
+ENTRYPOINT ["/app/temp-handler"]
+```
+
+If you understood the previous dockerfile, this one should be a breeze. 
+We again use `uselagoon/commons` as the base image.
+Then after adding Go, copying the files in, and compiling the binary, we simply set the entry point of the image to the binary.
+That is, our image will start the HTTP server on launch.
+
+Our docker compose file is similarly austere:
+
+```yaml
+services:
+  temp-handler:
+    build:
+      context: .
+      dockerfile: lagoon/go.Dockerfile
+    labels:
+      lagoon.type: basic
+      lagoon.service.usecomposeports: true
+    ports:
+      - "3000:3000"
+```
+
+The only difference worth commenting is that we use the `basic` lagoon type, since Lagoon does not provide a 'Go' type and you should use this type if you don't have a reason to use any other ones.
+Finally, the `.lagoon.yml` is at its simplest:
+
+```yaml
+docker-compose-yaml: docker-compose.yml
+```
+
+Of course, the lagoon yaml file in the previous example could have been this simple too, but in that case we wanted to create an ingress for a specific host (i.e the live site domain name).
+
+# Example 3: A NodeJS app (Umami Analytics)
 
 
 
-# Example 3: A Golang Microservice (temp-handler)
+
+
+
+
+
+
 
 [^1]: Although as it turned out, I did get an electricity bill shock because running a cluster 24x7 on an old gaming PC with a 1080 GPU is, unsurprisingly, quite power hungry.
 [^2]: I won't be capitalising lagoonisation no matter what the grammar nazis would say. 
