@@ -232,6 +232,6 @@ Of course, the lagoon yaml file in the previous example could have been this sim
 
 
 [^1]: Although as it turned out, I did get an electricity bill shock because running a cluster 24x7 on an old gaming PC with a 1080 GPU is, unsurprisingly, quite power hungry.
-[^2]: I won't be capitalising lagoonisation no matter what the grammar nazis would say. 
+[^2]: I won't be capitalising lagoonisation no matter what the grammar nazis would say. And yes, it contains the funny word 🤪
 [^3]: To paraphrase a colleague.
 [^4]: Imma be honest, I'm not really sure why.
