@@ -1,0 +1,19 @@
+{{ $width := .Get "width" | default "" }}
+{{ $height := .Get "height" | default "" }}
+{{ $resource := .Get "image" | default "images/portrait.jpg" }}
+{{ $image := resources.Get $resource }}
+{{ $resized := $image }}
+{{ $name := .Get "credit" | default "Unknown" }}
+{{ $url := .Get "url" | default "" }}
+
+<p style="text-align: center;">
+  <img src="{{ $resized.RelPermalink }}" width="{{ $width }}" height="{{ $height }}" alt="{{ .Get "alt" | default "headshot" }}">
+</p>
+<p style="text-align: center; font-size: 0.8em; color: #666;">
+  Photo credit: 
+  {{ if $url }}
+    <a href="{{ $url }}" target="_blank" rel="noopener noreferrer">{{ $name }}</a>
+  {{ else }}
+    {{ $name }}
+  {{ end }}
+</p>

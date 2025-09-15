@@ -12,7 +12,8 @@ categories = [
 series = ["Lagoon"]
 +++
 
-{{< portrait image="/images/lagoon-wa.jpg" alt="a blue lagoon in western australia">}}
+{{< image-credit image="/images/cj-boats-on-harbour.jpg" credit="Callum Jack" url="https://callumjack.au" >}}
+
 
 **This article is in progress. Feel free to read, but note that it is in a pre-draft stage**
 
