@@ -14,6 +14,8 @@ series = ["Lagoon"]
 
 {{< portrait image="/images/lagoon-wa.jpg" alt="a blue lagoon in western australia">}}
 
+**This article is in progress. Feel free to read, but note that it is in a pre-draft stage**
+
 I make no secret of my passion for self-hosting.
 To me, there is something so satisfying about being self-reliant and fully in control of your infrastructure.
 No wonder then that my introduction to [Lagoon](https://lagoon.sh/) was such a boon.
