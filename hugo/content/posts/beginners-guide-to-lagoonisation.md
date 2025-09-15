@@ -222,6 +222,7 @@ Of course, the lagoon yaml file in the previous example could have been this sim
 
 # Example 3: A NodeJS app (Umami Analytics)
 
+To be written.
 
 
 
