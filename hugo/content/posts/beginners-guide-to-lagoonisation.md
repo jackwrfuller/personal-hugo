@@ -222,13 +222,131 @@ Of course, the lagoon yaml file in the previous example could have been this sim
 
 # Example 3: A NodeJS app (Umami Analytics)
 
-To be written.
+This example is a modified version of the one created by [Steve Worley](https://www.linkedin.com/in/sjworley/) during his time at [Salsa Digital](https://salsa.digital/).
+
+[Umami Analytics](https://github.com/umami-software/umami) is a simple yet powerful privacy-focused self-hosted web analytics tool.
+I personally use it with this website to track how many views my articles receive.
+It is Typescript application, which means it can be run using NodeJS.
+You will be pleased to hear that in this case, Lagoon helpfully provides a `node` type out of the box.
+The Lagoon team also maintains a node image too, which you should use in your dockerfile:
+
+```dockerfile
+ARG UMAMI_VERSION=mysql-v2.15.1
+FROM docker.umami.is/umami-software/umami:$UMAMI_VERSION as umami
+
+FROM uselagoon/node-24:latest
+
+COPY --from=umami /app /app
+COPY lagoon/entrypoints/10-environment.sh /lagoon/entrypoints/10-environment.sh
+
+# Install OpenSSL and required dependencies
+RUN apk upgrade --update-cache --available && \
+    apk add openssl && \
+    rm -rf /var/cache/apk/*
+
+EXPOSE 3000
+
+ENV HOSTNAME 0.0.0.0
+ENV PORT 3000
+
+CMD ["yarn", "start-docker"]
+```
+
+Besides the Umami-specific commands, most of this we have already seen before in the above two examples.
+That said, I would like to highlight the 'lagoon/entrypoint' line.
+The Lagoon images like `uselagoon/node-24` are based on the `uselagoon/commons` image.
+As I quoted above, this base image [includes](https://docs.lagoon.sh/docker-images/commons/#included-entrypoints):
+
+>a script to source all entrypoints under /lagoon/entrypoints/* in an alphabetical/numerical order
+
+In our case, we are adding a script that confirms, during build time, that all the necessary environment variables have been set.
+
+```bash
+#!/bin/sh
+
+echo " ==> Setting Umami database URL"
+
+if [ -z "${DATABASE_URL}" ]; then
+    echo "Error: you must explicitly set DATABASE_URL"
+    exit 1
+fi
+
+echo "OK!"
+
+echo " ==> Setting HASH_SALT"
+if [ -z "${HASH_SALT}" ]; then
+    export HASH_SALT=$(openssl rand -base64 32)
+else
+    echo "Using existing HASH_SALT"
+fi
+echo "OK!"
+```
+
+Scripts like this can be extremely useful in troubleshooting Lagoon deployment failures.
+Often, deployments can get stuck in phases such as `applyingDeployments` without providing any useful logs to aid debugging.
+I have had this exact issue before, and the issue turned out to be incorrect/missing environment variables.
+By including an entrypoint script similar to the one above, the deployment will instead fail _noisily_ during image build, allowing you to fix the issue immediately.
+
+Moving on the docker compose file, astute readers will notice something different:
+
+```yaml
+services:
+  umami:
+    build:
+      context: .
+      dockerfile: lagoon/umami.Dockerfile
+      args:
+        UMAMI_VERSION: mysql-v2.15.1
+    ports:
+      - 3000
+    labels:
+      lagoon.type: node
+    depends_on:
+      - db
+
+  db:
+    image: uselagoon/mysql-8.0:latest
+    restart: always
+    labels:
+      lagoon.type: mariadb-single
+      lagoon.image: uselagoon/mysql-8.0:latest
+    ports:
+      - "3306"
+```
+
+This is unique for a couple reasons:
+
+- it is the first example with more than one service
+- one of the services is not using a dockerfile to build the image.
+
+It goes without saying that many applications require access to a database to function, Umami included.
+The Lagoon team provides a selection of database images, and in this example we chose MySQL (Umami supports both MySQL and PostgreSQL).  
+
+For the kubernetically-minded, at a cluster level this results in two pods in the namespace:
+
+```
+➜  ~ k get pods -n umami-main     
+NAME                     READY   STATUS      RESTARTS       AGE
+db-599c84c6b-d9hjm       1/1     Running     4 (11h ago)    12d
+lagoon-build-1b1wv       0/1     Completed   0              12d
+umami-7476d6759d-fqn8n   1/1     Running     10 (11h ago)   12d
+```
+
+Alternatively, though I won't go into the details here, Lagoon also allows you to use a 'database as a service' ("DBaaS").
+That way, if you are hosting many projects that require a database, you can share a single one instead of deploying one per project.
+In our case, we could have used the [mariadb-dbaas](https://docs.lagoon.sh/concepts-advanced/service-types/#mariadb-dbaas) label type.
+Note however, your Lagoon instance must have a DBaaS operator installed and configured, which is does not do by default.
 
 
+# Conclusion
 
-
-
-
+The above examples are just a taster of what you can host in Lagoon.
+The Lagoon team maintains a limited [suite of templates](https://github.com/uselagoon/lagoon-examples), though be warned that not all of them work immediately out-of-the-box[^5]. 
+One of my broader goals is to develop a lightweight Lagoon distribution tailored for the self-hosted/homelabbing community.
+Alongside an easy to use installer, I intend for it to feature a collection of lagoonised templates of common, popular, self-hosted applications.
+Think Jellyfin, Audiobookshelf, Plex, and so on.
+If all goes to plan, this Lagoon-At-Home - as I have taken to calling it - will offer the benefits of kubernetes without the near-vertical learning curve, nor the requirement to juggle 10 different docker containers.
+Reaping the full benefits of Lagoon therefore requires a solid understanding of lagoonisation, and hopefully this article has been a somewhat-gentle introduction.
 
 
 
@@ -236,3 +354,4 @@ To be written.
 [^2]: I won't be capitalising lagoonisation no matter what the grammar nazis would say. And yes, it contains the funny word 🤪
 [^3]: To paraphrase a colleague.
 [^4]: Imma be honest, I'm not really sure why.
+[^5]: For example, as of writing the Laravel template throws database-related HTTP 500 errors upon install.
