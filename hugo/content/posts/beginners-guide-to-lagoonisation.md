@@ -340,14 +340,15 @@ Note however, your Lagoon instance must have a DBaaS operator installed and conf
 
 # Conclusion
 
-The above examples are just a taster of what you can host in Lagoon.
-The Lagoon team maintains a limited [suite of templates](https://github.com/uselagoon/lagoon-examples), though be warned that not all of them work immediately out-of-the-box[^5]. 
-One of my broader goals is to develop a lightweight Lagoon distribution tailored for the self-hosted/homelabbing community.
-Alongside an easy to use installer, I intend for it to feature a collection of lagoonised templates of common, popular, self-hosted applications.
-Think Jellyfin, Audiobookshelf, Plex, and so on.
-If all goes to plan, this Lagoon-At-Home - as I have taken to calling it - will offer the benefits of kubernetes without the near-vertical learning curve, nor the requirement to juggle 10 different docker containers.
-Reaping the full benefits of Lagoon therefore requires a solid understanding of lagoonisation, and hopefully this article has been a somewhat-gentle introduction.
+Reaping the full benefits of Lagoon requires a solid understanding of lagoonisation, and hopefully now you are familiar with the basics.
+Of course, the above examples are just a taster of what you can host in Lagoon.
+The Lagoon team does maintain a limited [suite of templates](https://github.com/uselagoon/lagoon-examples), though be warned that not all of them work immediately out-of-the-box[^5]. 
 
+One of the broader goals of my work with Lagoon is to develop a lightweight distribution tailored for the self-hosted/homelabbing community - kind of like the 'Alpine Linux' version of Lagoon.
+Alongside an easy to use installer, I intend for it to feature a collection of lagoonised templates of popular self-hosted applications with a one-click deployment.
+Think Jellyfin, Audiobookshelf, Plex, and so on.
+If all goes to plan, this Lagoon-At-Home (as I have taken to calling it) will offer the benefits of kubernetes without the near-vertical learning curve, nor the requirement to juggle 10 different docker containers.
+If that sounds interesting to you, then stay tuned.
 
 
 [^1]: Although as it turned out, I did get an electricity bill shock because running a cluster 24x7 on an old gaming PC with a 1080 GPU is, unsurprisingly, quite power hungry. EDIT: it was actually the 2000W space heater 😕
