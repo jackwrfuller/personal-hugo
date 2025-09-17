@@ -324,7 +324,7 @@ The Lagoon team provides a selection of database images, and in this example we 
 
 For the kubernetically-minded, at a cluster level this results in two pods in the namespace:
 
-```
+```bash
 ➜  ~ k get pods -n umami-main     
 NAME                     READY   STATUS      RESTARTS       AGE
 db-599c84c6b-d9hjm       1/1     Running     4 (11h ago)    12d
