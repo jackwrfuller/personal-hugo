@@ -335,7 +335,7 @@ umami-7476d6759d-fqn8n   1/1     Running     10 (11h ago)   12d
 Alternatively, though I won't go into the details here, Lagoon also allows you to use a 'database as a service' ("DBaaS").
 That way, if you are hosting many projects that require a database, you can share a single one instead of deploying one per project.
 In our case, we could have used the [mariadb-dbaas](https://docs.lagoon.sh/concepts-advanced/service-types/#mariadb-dbaas) label type.
-Note however, your Lagoon instance must have a DBaaS operator installed and configured, which is does not do by default.
+Note however, your Lagoon instance must have a DBaaS operator installed and configured, which it does not do by default.
 
 
 # Conclusion
