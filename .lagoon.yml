@@ -3,14 +3,3 @@ docker-compose-yaml: docker-compose.yml
 routes:
   autogenerate:
     oauthProtected: true
-
-environments:
-  o2p:
-    routes:
-      - nginx:
-        - jackwrfuller.au:
-            tls-acme: 'true'
-            insecure: Redirect
-            oauthProtected: true
-        - nginx.hugo.o2p.172.19.0.240.sslip.io:
-            oauthProtected: true
