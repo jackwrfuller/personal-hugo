@@ -1,0 +1,11 @@
+<li>
+  <span class="date">
+    {{ if not .Draft }}
+    {{ .Date | time.Format (.Site.Params.dateFormat | default "January 2, 2006" ) }}
+    {{ else }}
+    Draft
+    {{ end }}
+  </span>
+  <a class="title" href="{{ .Params.externalLink | default .RelPermalink }}">{{ .Title }}</a>
+</li>
+
