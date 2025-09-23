@@ -25,7 +25,7 @@ To me, there is something so satisfying about being self-reliant and fully in co
 No wonder then that my introduction to [Lagoon](https://lagoon.sh/) was such a boon.
 Lagoon is like your very own self-hosted cloud platform - an AWS without the cloud bill shock[^1], a Netlify without the restriction to static websites.
 However, despite being incredibly powerful Lagoon does come at a minor cost: you have to prepare applications to be run on it.
-This prepatory process is called _lagoonisation_[^2], and while not an extremely difficult one it is nonetheless more burdensome than the aforementioned platforms. 
+This preparatory process is called _lagoonisation_[^2], and while not an extremely difficult one it is nonetheless more burdensome than the aforementioned platforms. 
 Fortunately once you understand the process, self-hosting pretty much any container in a cloud native fashion becomes a breeze.
 
 In this article I would like to introduce the basics of lagoonisation, as well as some of the tricks I have picked up so far.

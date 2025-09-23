@@ -145,7 +145,7 @@ I used a fairly basic makefile to link and compile the program, resulting in a b
 ```
 
 Of course, I wanted to take regular readings from the sensor. 
-Since I aleady had a linux binary, cron was the natural way to achieve this.
+Since I already had a linux binary, cron was the natural way to achieve this.
 Providing an update each minute seemed reasonable, so I simply edited the cron schedule with
 
 ```bash
@@ -282,7 +282,7 @@ This is where _Lagoon_ comes in.
 Essentially, it is a layer on top of kubernetes that allows you to deploy any containerised application without having to deal with kubernetes-related concerns, such as Helm charts.
 You can think of it as your own personal Netlify or Vercel, except you can deploy pretty much anything that you can fit into a `docker-compose.yml` file. 
 
-To deploy an existing compose setup to Lagoon, you have to create a `.lagoon.yml` file and then make some minor tweaks to your compose file - this process is refered to as _lagoonisation_.
+To deploy an existing compose setup to Lagoon, you have to create a `.lagoon.yml` file and then make some minor tweaks to your compose file - this process is referred to as _lagoonisation_.
 
 This means I had to do two things:
 

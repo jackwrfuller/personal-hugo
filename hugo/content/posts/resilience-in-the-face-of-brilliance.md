@@ -23,7 +23,7 @@ You might think then that the opportunities afforded by the internet are a gold 
 
 And guess what? They are.
 There are a million and one high quality tutorials on just about any topic, most of them completely free of charge.
-You can learn directly from any number of truly talented individuals, some of whom of a calibre that historially most people couldn't even dream of interacting with.
+You can learn directly from any number of truly talented individuals, some of whom are of a calibre that historially most people couldn't even dream of interacting with.
 And yet, I find there is a darker side to this, at least for me.
 
 When you spend untold hours working to improve at something - and you do improve - it feels exhilirating.
