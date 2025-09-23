@@ -12,6 +12,8 @@ categories = [
 series = ["Opinion"]
 +++
 
+{{< image-credit image="/images/pink-clouds.jpg" width=700 credit="Callum Jack" url="https://callumjack.au" >}}
+
 It was promised that the internet would bring us closer together.
 Though in a sense this has been spectactularly true, it is obvious now that the consequences of this are not always good.
 One of the aspects of modern interconnectedness that I often struggle with is the sheer _availability_ of, and subsequent normalisation of, the exceptional.
