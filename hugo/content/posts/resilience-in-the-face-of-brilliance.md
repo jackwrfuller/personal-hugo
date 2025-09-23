@@ -1,5 +1,4 @@
 +++
-draft = true
 authors = ["Jack W R Fuller"]
 title = "Resilience in the Face of Brilliance"
 date = "2025-09-22"
