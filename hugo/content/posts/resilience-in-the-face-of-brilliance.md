@@ -65,7 +65,7 @@ Ask yourself, what is even the point of being good at something?
 Are you allowing excellence for its own sake to become a hollow, ego-driven pursuit?
 
 Finally, as an excellent engineer once said to me: it's a marathon not a sprint.
-From the anecdotally large amount of burned-out engineers, I think he gave sage advice.
+From the anecdotally large amount of burned-out engineers, I think this is sage advice.
 
 I believe I have come to terms with the fact that I will probably not be world-class at anything.
 But I think I have also realised that as long as I am passionate about what I am doing, and trying to improve a small amount each day, that is enough.
