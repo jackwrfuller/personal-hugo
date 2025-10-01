@@ -32,7 +32,7 @@ In this article I would like to introduce the basics of lagoonisation, as well a
 Of course, Lagoon provides [extensive documentation](https://docs.lagoon.sh/lagoonizing/) on the process at a level of detail I do not intend to match, but I found the documentation to lack _practical_ examples of lagoonisation in action.
 This article hopes to rectify this by providing three examples of how I took an existing image and prepared it for deployment in Lagoon.
 
-But first, we do we even have to do this at all?
+But first, why do we even have to do this at all?
 
 # Why Lagoonise?
 
@@ -44,7 +44,7 @@ Unfortunately, people put all sorts of wacky shit in their docker compose files[
 This manifests itself in the two _minimum_ requirements to lagoonise:
 
 - A `.lagoon.yml` file in the root of the repository that at minimum tells Lagoon which docker compose file to use
-- A `labels.lagoon.type` label for each service in the compose file so that Lagoon knows how to approach lagoonising it.
+- A `labels.lagoon.type` [label](https://docs.lagoon.sh/lagoonizing/#types) for each service in the compose file so that Lagoon knows how to approach lagoonising it.
 
 While in some cases this is all you need, in practice is often easiest in the long run to construct custom images rather than trying to shoehorn existing ones.
 I go into the details of this below.
@@ -311,7 +311,7 @@ services:
     image: uselagoon/mysql-8.0:latest
     restart: always
     labels:
-      lagoon.type: mariadb-single
+      lagoon.type: mariadb
       lagoon.image: uselagoon/mysql-8.0:latest
     ports:
       - "3306"
