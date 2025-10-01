@@ -1,7 +1,7 @@
 +++
 authors = ["Jack W R Fuller"]
 title = "A Beginner's Guide to Lagoonisation"
-date = "2025-09-18"
+date = "2025-10-1"
 description = "How to prepare any application to run on your self-hosted cloud platform"
 tags = [
     "lagoon",
@@ -17,8 +17,6 @@ series = ["Lagoon"]
 
 {{< image-credit image="/images/cj-boats-on-harbour.jpg" credit="Callum Jack" url="https://callumjack.au" >}}
 
-
-**This article is in progress. Feel free to read, but note that it is in a draft stage**
 
 I make no secret of my passion for self-hosting.
 To me, there is something so satisfying about being self-reliant and fully in control of your infrastructure.
