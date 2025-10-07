@@ -1,7 +1,7 @@
 +++
 authors = ["Jack W R Fuller"]
 title = "A Beginner's Guide to Lagoonisation"
-date = "2025-10-1"
+date = "2025-10-01"
 description = "How to prepare any application to run on your self-hosted cloud platform"
 tags = [
     "lagoon",
