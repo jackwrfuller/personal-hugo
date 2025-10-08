@@ -8,5 +8,5 @@ environments:
   o2p:
     routes:
       - nginx:
-        - nginx.hugo.o2p.172.19.0.240.sslip.io:
+        - nginx.test.o2p.172.19.0.240.sslip.io:
             oauthProtected: true
