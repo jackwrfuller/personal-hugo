@@ -10,3 +10,5 @@ environments:
       - nginx:
         - nginx.test.o2p.172.19.0.240.sslip.io:
             oauthProtected: true
+        - test.example.com:
+            oauthProtected: true
